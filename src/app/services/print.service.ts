@@ -491,4 +491,100 @@ export class PrintService {
 </html>`;
     this.openPrintWindow(html);
   }
+
+  // 7. Acta Oficial de Ajuste y Retiro de Inventario Físico
+  printInventoryAdjustmentActa(log: any, companySettings?: any): void {
+    const companyName = companySettings?.commercialName || companySettings?.name || "SMART HNL POS";
+    const rtnStr = companySettings?.rtn || "00000000000000";
+    const addressStr = companySettings?.address || "Tegucigalpa, Honduras";
+    const phoneStr = companySettings?.phone || "0000-0000";
+
+    const isExit = log.type === 'SALIDA';
+    const totalValue = (log.quantity || 0) * (log.costUnit || 0);
+
+    const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Acta de Ajuste Físico - N° ${log.reference || 'S/N'}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 25px; display: flex; flex-direction: column; align-items: center; }
+    .container { max-width: 850px; width: 100%; background: white; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 30px; box-sizing: border-box; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0f172a; padding-bottom: 15px; margin-bottom: 25px; }
+    .company-info { font-size: 11px; color: #475569; line-height: 1.4; }
+    .document-title { text-align: right; }
+    .document-title h2 { margin: 0; font-size: 15px; color: ${isExit ? '#b91c1c' : '#047857'}; font-weight: 800; text-transform: uppercase; }
+    .document-title p { margin: 3px 0 0 0; font-size: 9px; color: #64748b; font-weight: bold; text-transform: uppercase; }
+    .card { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px; font-size: 11px; line-height: 1.5; }
+    .card h3 { margin: 0 0 8px 0; font-size: 12px; color: #0f172a; border-bottom: 1px dashed #cbd5e1; padding-bottom: 4px; text-transform: uppercase; }
+    table { width: 100%; border-collapse: collapse; font-size: 11px; margin: 20px 0; }
+    th { background-color: #334155; color: white; font-weight: 700; padding: 10px; text-align: left; }
+    td { padding: 10px; border-bottom: 1px solid #e2e8f0; }
+    .footer-signatures { display: flex; justify-content: space-between; margin-top: 60px; padding-top: 20px; }
+    .sig-block { width: 42%; text-align: center; border-top: 1px solid #0f172a; padding-top: 6px; font-size: 10px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="company-info">
+        <h1 style="margin: 0; font-size: 16px; font-weight: 900; color: #0f172a;">${companyName}</h1>
+        <div>RTN: <strong>${rtnStr}</strong></div>
+        <div>Dirección: ${addressStr}</div>
+        <div>Teléfono: ${phoneStr}</div>
+      </div>
+      <div class="document-title">
+        <h2>${isExit ? 'ACTA DE RETIRO / MERMA FÍSICA' : 'ACTA DE INGRESO / AJUSTE FÍSICO'}</h2>
+        <p>Referencia Oficial: <strong>${log.reference || 'S/R'}</strong></p>
+        <p>Fecha Registro: ${log.date || new Date().toLocaleString()}</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>1. DATOS DE AUDITORÍA Y JUSTIFICACIÓN</h3>
+      <p><strong>Tipo de Ajuste:</strong> <span style="font-weight: 800; color: ${isExit ? '#b91c1c' : '#047857'}">${log.type}</span></p>
+      <p><strong>Motivo / Justificación:</strong> ${log.notes || log.reason || 'Ajuste manual de existencias físicas en bodega.'}</p>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Código / Descripción del Producto</th>
+          <th style="text-align: right;">Cantidad</th>
+          <th style="text-align: right;">Costo Unit. (L.)</th>
+          <th style="text-align: right;">Total Valorizado (L.)</th>
+          <th style="text-align: right;">Stock Resultante</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-weight: bold;">${log.productName || 'Producto ID: ' + log.productId}</td>
+          <td style="text-align: right; font-weight: 800; color: ${isExit ? '#b91c1c' : '#047857'}">${isExit ? '-' : '+'}${log.quantity}</td>
+          <td style="text-align: right;">L. ${(log.costUnit || 0).toFixed(2)}</td>
+          <td style="text-align: right; font-weight: bold;">L. ${totalValue.toFixed(2)}</td>
+          <td style="text-align: right; font-weight: 800;">${log.stockAfter !== undefined ? log.stockAfter : 'N/D'}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="card" style="margin-top: 15px;">
+      <p style="margin: 0; font-size: 10px; color: #64748b;">
+        * Este documento certifica la variación oficial de existencias físicas para fines contables y de auditoría interna de almacén.
+      </p>
+    </div>
+
+    <div class="footer-signatures">
+      <div class="sig-block">
+        Responsable de Bodega / Entrega
+      </div>
+      <div class="sig-block">
+        Auditoría / Autorizado Por
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+    this.openPrintWindow(html);
+  }
 }
+
