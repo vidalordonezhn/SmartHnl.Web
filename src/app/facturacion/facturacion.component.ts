@@ -30,449 +30,359 @@ interface CartLineItem {
     <div class="space-y-4">
       
       <!-- Top Sub-Navigation Header: Facturador vs Historial -->
-      <div class="flex items-center justify-between bg-white p-2.5 rounded-xl border border-slate-200 shadow-xs">
+      <div class="flex items-center justify-between bg-white px-4 py-2.5 rounded-2xl border border-slate-200 shadow-xs">
         <div class="flex items-center gap-2">
           <button (click)="activeView.set('BILLING')"
                   [ngClass]="activeView() === 'BILLING' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold'"
-                  class="px-4 py-2 rounded-lg text-xs transition flex items-center gap-2 cursor-pointer">
-            <span>⚡ Facturación SAP / SAR (Nueva Emisión)</span>
+                  class="px-4 py-2 rounded-xl text-xs transition flex items-center gap-2 cursor-pointer">
+            <span>⚡ Facturación Fiscal SAR</span>
           </button>
           <button (click)="activeView.set('HISTORY')"
                   [ngClass]="activeView() === 'HISTORY' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold'"
-                  class="px-4 py-2 rounded-lg text-xs transition flex items-center gap-2 cursor-pointer">
-            <span>📑 Historial de Comprobantes Fiscales</span>
-            <span class="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-900/20 text-white font-bold">{{ facturas().length }}</span>
+                  class="px-4 py-2 rounded-xl text-xs transition flex items-center gap-2 cursor-pointer">
+            <span>📑 Historial de Comprobantes</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-900/10 text-slate-800 font-bold">{{ facturas().length }}</span>
           </button>
         </div>
 
-        <div class="flex items-center gap-2 text-xs font-bold text-slate-500">
-          <span>Régimen Fiscal SAR Honduras</span>
-          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2 px-3 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-600">
+            <span class="text-slate-400">Punto:</span>
+            <span class="font-bold text-slate-900" [ngClass]="documentType === 'RECIBO_HONORARIOS' ? 'text-emerald-700' : 'text-blue-700'">
+              {{ documentType === 'RECIBO_HONORARIOS' ? '🏬 Sucursal' : '🏢 Casa Matriz' }}
+            </span>
+          </div>
+          <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-600">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Régimen SAR Activo</span>
+          </div>
         </div>
       </div>
 
       <!-- ========================================================================= -->
-      <!-- VIEW 1: SAP ERP FACTURADOR POS (EMISIÓN FISCAL SAR) -->
+      <!-- VIEW 1: FACTURADOR NORMALIZADO (ERGONOMÍA & ALTA VELOCIDAD) -->
       <!-- ========================================================================= -->
       @if (activeView() === 'BILLING') {
-        <div class="bg-[#dbe1e8] p-2.5 sm:p-3.5 rounded-xl border border-slate-400 font-sans shadow-lg text-slate-800 text-[11px]">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
           
-          <!-- SAP Title Bar -->
-          <div class="text-white px-3 py-2 rounded-t flex items-center justify-between shadow-sm border-b-2"
-               [ngClass]="documentType === 'RECIBO_HONORARIOS' ? 'bg-gradient-to-r from-[#3d5a5b] to-[#2c4041] border-[#10b981]' : 'bg-gradient-to-r from-[#596677] to-[#485465] border-[#eab308]'">
-            <div class="flex items-center gap-2">
-              <span class="text-base">{{ documentType === 'RECIBO_HONORARIOS' ? '🏬' : '🏢' }}</span>
-              <h2 class="font-bold text-xs tracking-wide">
-                {{ documentType === 'RECIBO_HONORARIOS' ? 'Factura Comercial (Sucursal)' : 'Factura Comercial Fiscal (Casa Matriz)' }}
-              </h2>
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="text-[10px] bg-black/30 px-2 py-0.5 rounded font-mono font-bold tracking-wider">
-                SAR HONDURAS
-              </span>
-            </div>
-          </div>
-
-          <!-- Main Window Content -->
-          <div class="bg-[#edf0f5] p-3 rounded-b border border-slate-300 space-y-3">
+          <!-- LEFT COLUMN (8 COLS): COMPACT HEADER & EXPANDED CART TABLE -->
+          <div class="lg:col-span-8 space-y-3">
             
-            <!-- TOP DOCUMENT FORM HEADER -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 bg-[#f4f6f9] p-3 rounded border border-slate-300 text-[11px]">
+            <!-- COMPACT SMART CLIENT & FISCAL HEADER -->
+            <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
               
-              <!-- Left Column: Cliente, Nombre, RTN, Dirección, Teléfono -->
-              <div class="lg:col-span-7 space-y-1.5">
+              <!-- Row 1: Client Quick Select, Term of Payment, Due Date -->
+              <div class="grid grid-cols-1 md:grid-cols-12 gap-2.5 items-center">
                 
-                <!-- Cliente -->
-                <div class="flex items-center gap-1.5">
-                  <label class="w-20 shrink-0 font-bold text-slate-700 text-[10.5px]">Cliente</label>
+                <!-- Client Box & Search Button -->
+                <div class="md:col-span-6 flex items-center gap-1.5">
                   <button type="button" (click)="openClientModal()"
-                          class="px-2 py-1 bg-blue-100 border border-blue-300 text-blue-900 font-bold rounded text-[9.5px] hover:bg-blue-200 transition shrink-0 flex items-center gap-1 cursor-pointer"
-                          title="Buscar Cliente en Directorio">
-                    <span>⇒</span>
+                          class="px-2.5 py-2 bg-blue-50 border border-blue-200 text-blue-700 font-bold text-xs rounded-xl hover:bg-blue-100 transition flex items-center gap-1 shrink-0 cursor-pointer"
+                          title="Buscar cliente en directorio">
+                    <span>👥</span>
                     <span>Buscar</span>
                   </button>
+
                   <div (click)="openClientModal()"
-                       class="flex-1 border border-slate-300 bg-white hover:bg-slate-50 px-2.5 py-1 text-[10.5px] font-bold text-slate-800 rounded-sm truncate cursor-pointer flex items-center justify-between">
-                    <span class="truncate">
-                      {{ selectedClientId === 'cf-id' ? 'CONSUMIDOR FINAL' : (selectedClient()?.name ? selectedClient()!.name.toUpperCase() : 'CONSUMIDOR FINAL') }}
-                    </span>
+                       class="flex-1 bg-slate-50 hover:bg-slate-100/80 border border-slate-200 rounded-xl px-3 py-1.5 text-xs cursor-pointer transition flex items-center justify-between min-w-0">
+                    <div class="truncate">
+                      <p class="font-bold text-slate-900 truncate">
+                        {{ selectedClientId === 'cf-id' ? 'CONSUMIDOR FINAL' : (selectedClient()?.name || customClientName) }}
+                      </p>
+                      <p class="text-[10px] text-slate-500 font-mono truncate">
+                        RTN: {{ customClientRtn || '00000000000000' }}
+                      </p>
+                    </div>
                     @if (selectedClientId !== 'cf-id') {
                       <button type="button" (click)="$event.stopPropagation(); resetToConsumidorFinal()"
-                              class="text-slate-400 hover:text-rose-600 font-bold text-xs" title="Restablecer a Consumidor Final">
+                              class="text-slate-400 hover:text-rose-600 font-bold text-xs ml-1" title="Cambiar a Consumidor Final">
                         ✕
                       </button>
                     }
                   </div>
                 </div>
 
-                <!-- Razón Social / Nombre -->
-                <div class="flex items-center gap-1.5">
-                  <label class="w-20 shrink-0 font-medium text-slate-700 text-[10.5px]">Nombre</label>
-                  <input type="text" [(ngModel)]="customClientName" placeholder="Nombre o razón social..."
-                         class="flex-1 border border-slate-300 bg-white px-2 py-1 text-[10.5px] text-slate-800 font-medium rounded-sm focus:outline-blue-500" />
-                </div>
-
-                <!-- RTN Fiscal -->
-                <div class="flex items-center gap-1.5">
-                  <label class="w-20 shrink-0 font-medium text-slate-700 text-[10.5px]">RTN Fiscal</label>
-                  <input type="text" [(ngModel)]="customClientRtn" placeholder="00000000000000"
-                         class="flex-1 border border-slate-300 bg-white px-2 py-1 text-[10.5px] font-mono text-slate-800 font-medium rounded-sm focus:outline-blue-500" />
-                </div>
-
-                <!-- Dirección -->
-                <div class="flex items-center gap-1.5">
-                  <label class="w-20 shrink-0 font-medium text-slate-700 text-[10.5px]">Dirección</label>
-                  <input type="text" [(ngModel)]="customClientAddress" placeholder="Dirección del cliente..."
-                         class="flex-1 border border-slate-300 bg-white px-2 py-1 text-[10.5px] text-slate-800 rounded-sm focus:outline-blue-500" />
-                </div>
-
-                <!-- Teléfono -->
-                <div class="flex items-center gap-1.5">
-                  <label class="w-20 shrink-0 font-medium text-slate-700 text-[10.5px]">Teléfono</label>
-                  <input type="text" [(ngModel)]="customClientPhone" placeholder="Teléfono de contacto..."
-                         class="flex-1 border border-slate-300 bg-white px-2 py-1 text-[10.5px] text-slate-800 rounded-sm focus:outline-blue-500" />
-                </div>
-              </div>
-
-              <!-- Right Column: Punto Emisión, Correlativo, Término, Fechas -->
-              <div class="lg:col-span-5 space-y-1.5">
-                
-                <!-- Tipo de Comprobante / Establecimiento -->
-                <div class="flex items-center gap-1.5">
-                  <label class="w-28 shrink-0 font-medium text-slate-700 text-[10.5px]">Comprobante</label>
-                  <select [(ngModel)]="documentType" (change)="onDocumentTypeChange()"
-                          class="flex-1 border border-slate-300 bg-white px-2 py-1 text-[10.5px] font-bold text-slate-800 rounded-sm focus:outline-blue-500 cursor-pointer">
-                    <option value="FACTURA">🏢 Factura Comercial (Casa Matriz)</option>
-                    <option value="RECIBO_HONORARIOS">🏬 Factura Comercial (Sucursal)</option>
-                  </select>
-                </div>
-
-                <!-- Término de Pago -->
-                <div class="flex items-center gap-1.5">
-                  <label class="w-28 shrink-0 font-medium text-slate-700 text-[10.5px]">Término de Pago</label>
+                <!-- Term of Payment -->
+                <div class="md:col-span-3">
                   <select [(ngModel)]="paymentTerm" (change)="onPaymentTermChange()"
-                          class="flex-1 border border-slate-300 bg-white px-2 py-1 text-[10.5px] font-medium text-slate-800 rounded-sm focus:outline-blue-500 cursor-pointer">
+                          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-semibold text-slate-800 focus:outline-blue-500 cursor-pointer">
                     <optgroup label="Contado">
-                      <option value="EFECTIVO">EFECTIVO</option>
-                      <option value="TARJETA">TARJETA</option>
-                      <option value="TRANSFERENCIA BANCARIA">TRANSFERENCIA BANCARIA</option>
-                      <option value="LINK PAGO">LINK PAGO</option>
+                      <option value="EFECTIVO">💵 EFECTIVO</option>
+                      <option value="TARJETA">💳 TARJETA</option>
+                      <option value="TRANSFERENCIA BANCARIA">🏦 TRANSFERENCIA</option>
+                      <option value="LINK PAGO">🔗 LINK PAGO</option>
                     </optgroup>
                     @if (selectedClientId !== 'cf-id') {
                       <optgroup label="Crédito">
-                        <option value="CREDITO 15 DIAS">CRÉDITO 15 DÍAS</option>
-                        <option value="CREDITO 30 DIAS">CRÉDITO 30 DÍAS</option>
-                        <option value="CREDITO 60 DIAS">CRÉDITO 60 DÍAS</option>
+                        <option value="CREDITO 15 DIAS">⏳ CRÉDITO 15 DÍAS</option>
+                        <option value="CREDITO 30 DIAS">⏳ CRÉDITO 30 DÍAS</option>
+                        <option value="CREDITO 60 DIAS">⏳ CRÉDITO 60 DÍAS</option>
                       </optgroup>
                     }
                   </select>
                 </div>
 
-                <!-- Fecha de Emisión -->
-                <div class="flex items-center gap-1.5">
-                  <label class="w-28 shrink-0 font-medium text-slate-700 text-[10.5px]">Fecha Emisión</label>
-                  <input type="date" [(ngModel)]="invoiceDate"
-                         class="flex-1 border border-slate-300 bg-white px-2 py-1 text-[10.5px] font-mono text-slate-800 rounded-sm focus:outline-blue-500" />
-                </div>
-
-                <!-- Fecha Vencimiento -->
-                <div class="flex items-center gap-1.5">
-                  <label class="w-28 shrink-0 font-medium text-slate-700 text-[10.5px]">Fecha Vence</label>
-                  <input type="date" [(ngModel)]="dueDate"
-                         class="flex-1 border border-slate-300 bg-white px-2 py-1 text-[10.5px] font-mono text-slate-800 rounded-sm focus:outline-blue-500" />
-                </div>
-
-                <!-- Moneda Local -->
-                <div class="flex items-center gap-1.5">
-                  <label class="w-28 shrink-0 font-medium text-slate-700 text-[10.5px]">Moneda</label>
-                  <span class="flex-1 border border-slate-300 bg-slate-100 px-2 py-1 text-[10.5px] font-bold text-slate-700 rounded-sm">
-                    HNL - Lempiras Hondureños (L.)
-                  </span>
+                <!-- Issue & Due Date -->
+                <div class="md:col-span-3">
+                  <input type="date" [(ngModel)]="invoiceDate" (change)="onPaymentTermChange()"
+                         class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-mono text-slate-800 focus:outline-blue-500" />
                 </div>
               </div>
-            </div>
 
-            <!-- SAP ERP SUB-TABS NAVIGATION -->
-            <div class="border-b border-slate-300 flex items-center gap-1 text-[11px] pt-1">
-              <button type="button" (click)="erpTab = 'CONTENIDO'"
-                      [ngClass]="erpTab === 'CONTENIDO' ? 'bg-white border-t-2 border-t-blue-600 border-x border-slate-300 font-bold text-blue-900 -mb-px pb-1.5' : 'bg-slate-200 text-slate-600 hover:bg-slate-100 font-semibold'"
-                      class="px-3 py-1.5 rounded-t cursor-pointer flex items-center gap-1.5">
-                <span>📋 Contenido & Artículos</span>
-              </button>
-
-              <button type="button" (click)="erpTab = 'SAR'"
-                      [ngClass]="erpTab === 'SAR' ? 'bg-white border-t-2 border-t-blue-600 border-x border-slate-300 font-bold text-blue-900 -mb-px pb-1.5' : 'bg-slate-200 text-slate-600 hover:bg-slate-100 font-semibold'"
-                      class="px-3 py-1.5 rounded-t cursor-pointer flex items-center gap-1.5">
-                <span>🏛️ Documento Electrónico (SAR)</span>
-                @if (isExonerated) {
-                  <span class="w-2 h-2 rounded-full bg-amber-500" title="Exoneración Activa"></span>
-                }
-              </button>
-
-              <button type="button" (click)="erpTab = 'LOGISTICA'"
-                      [ngClass]="erpTab === 'LOGISTICA' ? 'bg-white border-t-2 border-t-blue-600 border-x border-slate-300 font-bold text-blue-900 -mb-px pb-1.5' : 'bg-slate-200 text-slate-600 hover:bg-slate-100 font-semibold'"
-                      class="px-3 py-1.5 rounded-t cursor-pointer flex items-center gap-1.5">
-                <span>🚚 Logística</span>
-              </button>
-
-              <button type="button" (click)="erpTab = 'FINANZAS'"
-                      [ngClass]="erpTab === 'FINANZAS' ? 'bg-white border-t-2 border-t-blue-600 border-x border-slate-300 font-bold text-blue-900 -mb-px pb-1.5' : 'bg-slate-200 text-slate-600 hover:bg-slate-100 font-semibold'"
-                      class="px-3 py-1.5 rounded-t cursor-pointer flex items-center gap-1.5">
-                <span>💳 Finanzas & Crédito</span>
-              </button>
-
-              <button type="button" (click)="erpTab = 'ANEXOS'"
-                      [ngClass]="erpTab === 'ANEXOS' ? 'bg-white border-t-2 border-t-blue-600 border-x border-slate-300 font-bold text-blue-900 -mb-px pb-1.5' : 'bg-slate-200 text-slate-600 hover:bg-slate-100 font-semibold'"
-                      class="px-3 py-1.5 rounded-t cursor-pointer flex items-center gap-1.5">
-                <span>📑 Opciones / Sucursal</span>
-              </button>
-            </div>
-
-            <!-- TAB 1: CONTENIDO (LÍNEAS DE ARTÍCULOS) -->
-            @if (erpTab === 'CONTENIDO') {
-              <div class="bg-white p-2.5 rounded border border-slate-300 space-y-2.5">
+              <!-- Row 2: Collapsible Details (Custom Client fields & Exoneration toggle) -->
+              <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-xs">
                 
-                <!-- Search / Quick Add Bar -->
-                <div class="flex items-center justify-between gap-2 bg-slate-50 p-2 rounded border border-slate-200">
-                  <div class="flex items-center gap-2 flex-1">
-                    <button type="button" (click)="openCatalogModal()"
-                            class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded shadow-xs flex items-center gap-1.5 cursor-pointer">
-                      <span>📦 Buscar en Catálogo</span>
-                    </button>
-                    <input type="text" [(ngModel)]="quickBarcodeInput" (keyup.enter)="addByBarcodeOrCode()"
-                           placeholder="Escanee código de barra o ingrese código rápido y presione ENTER..."
-                           class="flex-1 border border-slate-300 bg-white px-2.5 py-1 text-xs rounded focus:outline-blue-500" />
-                  </div>
-                  <button type="button" (click)="addEmptyItemLine()"
-                          class="px-2.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs rounded transition cursor-pointer">
-                    + Agregar Línea Manual
-                  </button>
-                </div>
-
-                <!-- Table of Lines -->
-                <div class="border border-slate-300 rounded overflow-x-auto min-h-[140px]">
-                  <table class="w-full text-left text-[11px] border-collapse">
-                    <thead class="bg-slate-100 text-slate-600 font-bold border-b border-slate-300">
-                      <tr>
-                        <th class="px-2 py-1.5 text-center w-8">#</th>
-                        <th class="px-2 py-1.5 w-48">Producto / Descripción</th>
-                        <th class="px-2 py-1.5 text-center w-16">Cant.</th>
-                        <th class="px-2 py-1.5 text-right w-24">Precio Unit. (L.)</th>
-                        <th class="px-2 py-1.5 text-right w-20">Desc. (L.)</th>
-                        <th class="px-2 py-1.5 text-center w-28">Impuesto</th>
-                        <th class="px-2 py-1.5 w-28">N° Serie / Garantía</th>
-                        <th class="px-2 py-1.5 text-right w-24">Total Línea</th>
-                        <th class="px-2 py-1.5 text-center w-10">✕</th>
-                      </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-200 font-medium">
-                      @for (item of cart; track item.id; let idx = $index) {
-                        <tr class="hover:bg-blue-50/40">
-                          <td class="px-2 py-1 text-center font-bold text-slate-400">{{ idx + 1 }}</td>
-                          <td class="px-2 py-1">
-                            <input type="text" [(ngModel)]="item.customDescription" placeholder="Descripción del artículo..."
-                                   class="w-full bg-white border border-slate-200 px-1.5 py-0.5 rounded text-[10.5px] font-medium text-slate-800 focus:outline-blue-500" />
-                          </td>
-                          <td class="px-2 py-1 text-center">
-                            <input type="number" [(ngModel)]="item.quantity" min="1"
-                                   class="w-14 bg-white border border-slate-200 px-1 py-0.5 rounded text-center text-[10.5px] font-bold text-slate-900 focus:outline-blue-500" />
-                          </td>
-                          <td class="px-2 py-1 text-right">
-                            <input type="number" [(ngModel)]="item.priceUnit" min="0" step="0.01"
-                                   class="w-20 bg-white border border-slate-200 px-1.5 py-0.5 rounded text-right text-[10.5px] font-bold text-slate-900 focus:outline-blue-500" />
-                          </td>
-                          <td class="px-2 py-1 text-right">
-                            <input type="number" [(ngModel)]="item.discount" min="0" step="0.01"
-                                   class="w-16 bg-white border border-slate-200 px-1 py-0.5 rounded text-right text-[10.5px] text-slate-600 focus:outline-blue-500" />
-                          </td>
-                          <td class="px-2 py-1 text-center">
-                            <select [(ngModel)]="item.taxType"
-                                    class="w-24 bg-white border border-slate-200 px-1 py-0.5 rounded text-[10px] font-bold focus:outline-blue-500">
-                              <option value="GRAVADO_15">ISV 15%</option>
-                              <option value="GRAVADO_18">ISV 18%</option>
-                              <option value="EXENTO">Exento</option>
-                            </select>
-                          </td>
-                          <td class="px-2 py-1">
-                            <input type="text" [(ngModel)]="item.serialNumber" placeholder="S/N..."
-                                   class="w-full bg-white border border-slate-200 px-1.5 py-0.5 rounded text-[10px] font-mono text-slate-700" />
-                          </td>
-                          <td class="px-2 py-1 text-right font-black text-slate-900">
-                            L. {{ ((item.quantity * item.priceUnit) - item.discount).toFixed(2) }}
-                          </td>
-                          <td class="px-2 py-1 text-center">
-                            <button type="button" (click)="removeItem(idx)" class="text-rose-500 hover:text-rose-700 font-bold cursor-pointer">✕</button>
-                          </td>
-                        </tr>
-                      } @empty {
-                        <tr>
-                          <td colspan="9" class="px-4 py-8 text-center text-slate-400">
-                            Ningún producto agregado al carrito. Haga clic en <strong>Buscar en Catálogo</strong> o escanee un código.
-                          </td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            }
-
-            <!-- TAB 2: SAR (DOCUMENTO ELECTRÓNICO CONDICIONAL) -->
-            @if (erpTab === 'SAR') {
-              <div class="bg-white p-3 rounded border border-slate-300 space-y-3">
-                <div class="flex items-center gap-2 p-2.5 bg-amber-50 rounded border border-amber-200">
-                  <input type="checkbox" id="exoCheck" [(ngModel)]="isExonerated" class="w-4 h-4 text-amber-600 rounded cursor-pointer" />
-                  <label for="exoCheck" class="font-bold text-amber-900 cursor-pointer text-xs">
-                    Cliente / Operación Exonerada de Impuestos (ISV 0%)
+                <div class="flex items-center gap-3">
+                  <!-- Exoneration Toggle -->
+                  <label class="flex items-center gap-1.5 cursor-pointer font-bold select-none text-slate-700"
+                         [ngClass]="isExonerated ? 'text-amber-700' : 'text-slate-600'">
+                    <input type="checkbox" [(ngModel)]="isExonerated" class="w-3.5 h-3.5 text-amber-600 rounded cursor-pointer" />
+                    <span>Exonerado SAR (0% ISV)</span>
                   </label>
-                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div>
-                    <label class="block text-[11px] font-bold text-slate-700 mb-1">N° Orden de Compra Exenta</label>
-                    <input type="text" [(ngModel)]="ordenCompraExenta" placeholder="OC-EXENTA-12345"
-                           class="w-full border border-slate-300 bg-white px-2.5 py-1.5 text-xs rounded font-mono focus:outline-blue-500" />
-                  </div>
-                  <div>
-                    <label class="block text-[11px] font-bold text-slate-700 mb-1">N° Constancia Registro Exoneración</label>
-                    <input type="text" [(ngModel)]="constanciaExoneracion" placeholder="CONST-EXON-67890"
-                           class="w-full border border-slate-300 bg-white px-2.5 py-1.5 text-xs rounded font-mono focus:outline-blue-500" />
-                  </div>
-                  <div>
-                    <label class="block text-[11px] font-bold text-slate-700 mb-1">N° Registro SAG / Documento SAR</label>
-                    <input type="text" [(ngModel)]="documentoSar" placeholder="SAG-REG-9999"
-                           class="w-full border border-slate-300 bg-white px-2.5 py-1.5 text-xs rounded font-mono focus:outline-blue-500" />
-                  </div>
-                </div>
-                <p class="text-[10px] text-slate-500 italic">
-                  * Según la normativa del Régimen de Facturación SAR de Honduras, toda factura exonerada debe contener al menos uno de estos números fiscales emitidos por la Secretaría de Finanzas / SAR.
-                </p>
-              </div>
-            }
-
-            <!-- TAB 3: LOGÍSTICA -->
-            @if (erpTab === 'LOGISTICA') {
-              <div class="bg-white p-3 rounded border border-slate-300 space-y-3">
-                <div class="grid grid-cols-2 gap-3">
-                  <div>
-                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Dirección de Despacho / Entrega</label>
-                    <textarea [(ngModel)]="customClientAddress" rows="3"
-                              class="w-full border border-slate-300 bg-white p-2 text-xs rounded focus:outline-blue-500"></textarea>
-                  </div>
-                  <div>
-                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Observaciones Logísticas</label>
-                    <textarea [(ngModel)]="comments" rows="3" placeholder="Instrucciones especiales de entrega..."
-                              class="w-full border border-slate-300 bg-white p-2 text-xs rounded focus:outline-blue-500"></textarea>
-                  </div>
-                </div>
-              </div>
-            }
-
-            <!-- TAB 4: FINANZAS & CRÉDITO -->
-            @if (erpTab === 'FINANZAS') {
-              <div class="bg-white p-3 rounded border border-slate-300 space-y-3">
-                <div class="grid grid-cols-3 gap-3 text-xs">
-                  <div class="p-3 bg-slate-50 rounded border border-slate-200">
-                    <span class="text-slate-500 block">Límite de Crédito Autorizado:</span>
-                    <span class="font-bold text-slate-900 text-sm">L. {{ (selectedClient()?.creditLimit || 0).toFixed(2) }}</span>
-                  </div>
-                  <div class="p-3 bg-slate-50 rounded border border-slate-200">
-                    <span class="text-slate-500 block">Días de Crédito:</span>
-                    <span class="font-bold text-slate-900 text-sm">{{ selectedClient()?.creditDays || 0 }} Días</span>
-                  </div>
-                  <div class="p-3 bg-slate-50 rounded border border-slate-200">
-                    <span class="text-slate-500 block">Descuento Máximo Permitido:</span>
-                    <span class="font-bold text-blue-600 text-sm">{{ selectedClient()?.descuentoMaximo || 0 }}%</span>
-                  </div>
-                </div>
-              </div>
-            }
-
-            <!-- TAB 5: ANEXOS & SUCURSAL -->
-            @if (erpTab === 'ANEXOS') {
-              <div class="bg-white p-3 rounded border border-slate-300 space-y-3">
-                <div class="flex items-center gap-2 p-2.5 bg-slate-50 rounded border border-slate-200">
-                  <input type="checkbox" id="garCheck" [(ngModel)]="generarGarantiaAuto" class="w-4 h-4 text-blue-600 rounded cursor-pointer" />
-                  <label for="garCheck" class="font-bold text-slate-800 cursor-pointer text-xs">
-                    Generar Boleta de Garantía Automática si contiene artículos con Serie
-                  </label>
-                </div>
-
-                @if (documentType === 'RECIBO_HONORARIOS') {
-                  <div class="flex items-center gap-2 p-2.5 bg-teal-50 rounded border border-teal-200">
-                    <input type="checkbox" id="recalcCheck" [(ngModel)]="recalcular" class="w-4 h-4 text-teal-600 rounded cursor-pointer" />
-                    <label for="recalcCheck" class="font-bold text-teal-900 cursor-pointer text-xs">
-                      Modalidad Recalcular ISV (Tratar productos gravados como exentos en Sucursal)
+                  @if (documentType === 'RECIBO_HONORARIOS') {
+                    <label class="flex items-center gap-1.5 cursor-pointer font-bold select-none text-teal-700">
+                      <input type="checkbox" [(ngModel)]="recalcular" class="w-3.5 h-3.5 text-teal-600 rounded cursor-pointer" />
+                      <span>Recalcular (Exento en Sucursal)</span>
                     </label>
+                  }
+                </div>
+
+                <!-- Quick info / Custom edit toggle -->
+                <button type="button" (click)="showClientDetails.set(!showClientDetails())"
+                        class="text-blue-600 hover:text-blue-800 font-bold text-[11px] flex items-center gap-1 cursor-pointer">
+                  <span>{{ showClientDetails() ? 'Ocultar Datos Fiscales ▲' : 'Modificar Datos Receptor ▼' }}</span>
+                </button>
+              </div>
+
+              <!-- Expanded Client Details Drawer -->
+              @if (showClientDetails()) {
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-2 pt-2 border-t border-slate-100 text-xs animate-fadeIn">
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Nombre / Razón</label>
+                    <input type="text" [(ngModel)]="customClientName"
+                           class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-800 focus:outline-blue-500" />
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">RTN Fiscal</label>
+                    <input type="text" [(ngModel)]="customClientRtn"
+                           class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-mono text-slate-800 focus:outline-blue-500" />
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Dirección</label>
+                    <input type="text" [(ngModel)]="customClientAddress"
+                           class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-800 focus:outline-blue-500" />
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Teléfono</label>
+                    <input type="text" [(ngModel)]="customClientPhone"
+                           class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-800 focus:outline-blue-500" />
+                  </div>
+                </div>
+              }
+
+              <!-- SAR Exoneration Fields (Appears directly if Exonerated is checked) -->
+              @if (isExonerated) {
+                <div class="p-3 bg-amber-50/70 border border-amber-200 rounded-xl space-y-2 animate-fadeIn">
+                  <div class="flex items-center justify-between text-[11px] font-bold text-amber-900">
+                    <span>🏛️ Requisitos Fiscales SAR para Exoneración:</span>
+                    <span class="text-[10px] font-normal text-amber-700">* Ingrese al menos uno</span>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <div>
+                      <input type="text" [(ngModel)]="ordenCompraExenta" placeholder="N° Orden de Compra Exenta..."
+                             class="w-full bg-white border border-amber-300 rounded-lg px-2.5 py-1 text-xs font-mono text-slate-800 focus:outline-amber-500" />
+                    </div>
+                    <div>
+                      <input type="text" [(ngModel)]="constanciaExoneracion" placeholder="N° Constancia Exoneración..."
+                             class="w-full bg-white border border-amber-300 rounded-lg px-2.5 py-1 text-xs font-mono text-slate-800 focus:outline-amber-500" />
+                    </div>
+                    <div>
+                      <input type="text" [(ngModel)]="documentoSar" placeholder="N° Registro SAG / SAR..."
+                             class="w-full bg-white border border-amber-300 rounded-lg px-2.5 py-1 text-xs font-mono text-slate-800 focus:outline-amber-500" />
+                    </div>
+                  </div>
+                </div>
+              }
+
+            </div>
+
+            <!-- PRODUCT SEARCH & BARCODE SCANNER TOOLBAR -->
+            <div class="bg-white p-2.5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-2">
+              <button type="button" (click)="openCatalogModal()"
+                      class="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 shrink-0 cursor-pointer">
+                <span>📦 Catálogo</span>
+              </button>
+
+              <div class="flex-1 relative">
+                <input type="text" [(ngModel)]="quickBarcodeInput" (keyup.enter)="addByBarcodeOrCode()"
+                       placeholder="Escanee código de barra o ingrese nombre/código y presione ENTER..."
+                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-blue-500 focus:bg-white transition" />
+              </div>
+
+              <button type="button" (click)="addEmptyItemLine()"
+                      class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition cursor-pointer">
+                + Línea Libre
+              </button>
+            </div>
+
+            <!-- EXPANDED HIGH-CAPACITY CART TABLE (8 TO 12 ITEMS VISIBLE) -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+              <div class="overflow-x-auto max-h-[420px]">
+                <table class="w-full text-left text-xs border-collapse">
+                  <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200 sticky top-0 z-10">
+                    <tr>
+                      <th class="px-3 py-3 text-center w-8">#</th>
+                      <th class="px-3 py-3 min-w-[200px]">Producto / Descripción</th>
+                      <th class="px-2 py-3 text-center w-16">Cant.</th>
+                      <th class="px-3 py-3 text-right w-24">Precio (L.)</th>
+                      <th class="px-2 py-3 text-right w-20">Desc. (L.)</th>
+                      <th class="px-2 py-3 text-center w-24">Impuesto</th>
+                      <th class="px-3 py-3 text-right w-24">Total</th>
+                      <th class="px-2 py-3 text-center w-8">✕</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 font-medium">
+                    @for (item of cart; track item.id; let idx = $index) {
+                      <tr class="hover:bg-blue-50/30 transition group">
+                        <td class="px-3 py-2 text-center font-bold text-slate-400">{{ idx + 1 }}</td>
+                        <td class="px-3 py-2">
+                          <input type="text" [(ngModel)]="item.customDescription" placeholder="Descripción del artículo..."
+                                 class="w-full bg-slate-50 group-hover:bg-white border border-transparent group-hover:border-slate-200 px-2 py-1 rounded-lg text-xs font-semibold text-slate-900 focus:outline-blue-500 focus:bg-white" />
+                        </td>
+                        <td class="px-2 py-2 text-center">
+                          <input type="number" [(ngModel)]="item.quantity" min="1"
+                                 class="w-14 bg-slate-50 group-hover:bg-white border border-slate-200 px-1 py-1 rounded-lg text-center text-xs font-bold text-slate-900 focus:outline-blue-500" />
+                        </td>
+                        <td class="px-3 py-2 text-right">
+                          <input type="number" [(ngModel)]="item.priceUnit" min="0" step="0.01"
+                                 class="w-20 bg-slate-50 group-hover:bg-white border border-slate-200 px-1.5 py-1 rounded-lg text-right text-xs font-bold text-slate-900 focus:outline-blue-500" />
+                        </td>
+                        <td class="px-2 py-2 text-right">
+                          <input type="number" [(ngModel)]="item.discount" min="0" step="0.01"
+                                 class="w-16 bg-slate-50 group-hover:bg-white border border-slate-200 px-1.5 py-1 rounded-lg text-right text-xs text-slate-600 focus:outline-blue-500" />
+                        </td>
+                        <td class="px-2 py-2 text-center">
+                          <select [(ngModel)]="item.taxType"
+                                  class="w-22 bg-slate-50 group-hover:bg-white border border-slate-200 px-1.5 py-1 rounded-lg text-[10.5px] font-bold focus:outline-blue-500">
+                            <option value="GRAVADO_15">ISV 15%</option>
+                            <option value="GRAVADO_18">ISV 18%</option>
+                            <option value="EXENTO">Exento</option>
+                          </select>
+                        </td>
+                        <td class="px-3 py-2 text-right font-black text-slate-900">
+                          L. {{ ((item.quantity * item.priceUnit) - item.discount).toFixed(2) }}
+                        </td>
+                        <td class="px-2 py-2 text-center">
+                          <button type="button" (click)="removeItem(idx)" class="text-slate-300 hover:text-rose-600 font-bold p-1 transition cursor-pointer">✕</button>
+                        </td>
+                      </tr>
+                    } @empty {
+                      <tr>
+                        <td colspan="8" class="px-6 py-12 text-center text-slate-400">
+                          <div class="space-y-1">
+                            <p class="font-bold text-slate-600">Carrito de facturación vacío</p>
+                            <p class="text-xs">Haga clic en <strong>📦 Catálogo</strong> o escanee un producto para empezar.</p>
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT COLUMN (4 COLS): STICKY CHECKOUT & TOTALS DASHBOARD -->
+          <div class="lg:col-span-4 space-y-3 sticky top-4">
+            
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Resumen Fiscal</span>
+                <span class="text-xs font-black text-blue-600">{{ cart.length }} {{ cart.length === 1 ? 'Ítem' : 'Ítems' }}</span>
+              </div>
+
+              <!-- Breakdown Rows -->
+              <div class="space-y-1.5 text-xs">
+                <div class="flex justify-between text-slate-500 font-medium">
+                  <span>Subtotal Gravado (15%):</span>
+                  <span class="font-bold text-slate-800">L. {{ calculateTotals().subtotalGravado15.toFixed(2) }}</span>
+                </div>
+                @if (calculateTotals().subtotalGravado18 > 0) {
+                  <div class="flex justify-between text-slate-500 font-medium">
+                    <span>Subtotal Gravado (18%):</span>
+                    <span class="font-bold text-slate-800">L. {{ calculateTotals().subtotalGravado18.toFixed(2) }}</span>
                   </div>
                 }
-              </div>
-            }
-
-            <!-- FINANCIAL TOTALS SUMMARY DASHBOARD (FOOTER) -->
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-3 bg-[#e4e8ef] p-3 rounded border border-slate-300">
-              
-              <!-- Left: Totales en Letras & Observaciones -->
-              <div class="md:col-span-7 flex flex-col justify-between space-y-2">
-                <div class="p-2.5 bg-white rounded border border-slate-300 text-xs">
-                  <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Total en Letras (SAR):</span>
-                  <span class="font-black text-slate-900 text-xs tracking-wide">
-                    {{ calculateTotals().totalLetras }}
-                  </span>
-                </div>
-
-                <div class="flex items-center gap-2">
-                  <button type="button" (click)="resetForm()"
-                          class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs rounded transition cursor-pointer">
-                    Limpiar Todo
-                  </button>
-                  <button type="button" (click)="saveInvoice()" [disabled]="saving() || cart.length === 0"
-                          class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-lg shadow-md transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer">
-                    <span>✓ {{ saving() ? 'Emitiendo Comprobante...' : 'EMITIR FACTURA FISCAL SAR' }}</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Right: Breakdown of Taxes & Amounts -->
-              <div class="md:col-span-5 bg-white p-2.5 rounded border border-slate-300 space-y-1 text-xs">
-                <div class="flex justify-between text-slate-600">
-                  <span>Subtotal Gravado (15%):</span>
-                  <span class="font-semibold">L. {{ calculateTotals().subtotalGravado15.toFixed(2) }}</span>
-                </div>
-                <div class="flex justify-between text-slate-600">
-                  <span>Subtotal Gravado (18%):</span>
-                  <span class="font-semibold">L. {{ calculateTotals().subtotalGravado18.toFixed(2) }}</span>
-                </div>
-                <div class="flex justify-between text-slate-600">
+                <div class="flex justify-between text-slate-500 font-medium">
                   <span>Subtotal Exento (0%):</span>
-                  <span class="font-semibold">L. {{ calculateTotals().subtotalExento.toFixed(2) }}</span>
+                  <span class="font-bold text-slate-800">L. {{ calculateTotals().subtotalExento.toFixed(2) }}</span>
                 </div>
-                <div class="flex justify-between text-slate-600">
-                  <span>Subtotal Exonerado:</span>
-                  <span class="font-semibold">L. {{ calculateTotals().subtotalExonerado.toFixed(2) }}</span>
-                </div>
-                <div class="flex justify-between text-slate-600">
-                  <span>Descuentos Otorgados:</span>
-                  <span class="font-semibold text-rose-600">L. {{ calculateTotals().descuentoTotal.toFixed(2) }}</span>
-                </div>
-                <div class="flex justify-between text-blue-700 font-bold border-t border-slate-100 pt-1">
-                  <span>Impuesto ISV 15%:</span>
+                @if (calculateTotals().subtotalExonerado > 0) {
+                  <div class="flex justify-between text-amber-700 font-semibold">
+                    <span>Subtotal Exonerado SAR:</span>
+                    <span class="font-bold">L. {{ calculateTotals().subtotalExonerado.toFixed(2) }}</span>
+                  </div>
+                }
+                @if (calculateTotals().descuentoTotal > 0) {
+                  <div class="flex justify-between text-rose-600 font-medium">
+                    <span>Descuentos Otorgados:</span>
+                    <span class="font-bold">- L. {{ calculateTotals().descuentoTotal.toFixed(2) }}</span>
+                  </div>
+                }
+
+                <div class="flex justify-between text-blue-700 font-bold pt-2 border-t border-slate-100">
+                  <span>ISV 15% Calculado:</span>
                   <span>L. {{ calculateTotals().isv15.toFixed(2) }}</span>
                 </div>
                 @if (calculateTotals().isv18 > 0) {
                   <div class="flex justify-between text-blue-700 font-bold">
-                    <span>Impuesto ISV 18%:</span>
+                    <span>ISV 18% Calculado:</span>
                     <span>L. {{ calculateTotals().isv18.toFixed(2) }}</span>
                   </div>
                 }
-                <div class="flex justify-between text-sm font-black text-slate-900 border-t-2 border-slate-800 pt-1.5">
-                  <span>TOTAL A PAGAR:</span>
-                  <span class="text-emerald-700 text-base">L. {{ calculateTotals().totalGeneral.toFixed(2) }}</span>
+              </div>
+
+              <!-- Giant Total Card -->
+              <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-4 rounded-xl space-y-1 shadow-md">
+                <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total General (HNL)</span>
+                <div class="text-2xl font-black text-emerald-400 tracking-tight">
+                  L. {{ calculateTotals().totalGeneral.toFixed(2) }}
+                </div>
+              </div>
+
+              <!-- Number in Letters SAR -->
+              <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5">Total en Letras:</span>
+                <span class="font-bold text-slate-900 text-[11px] leading-tight block">
+                  {{ calculateTotals().totalLetras }}
+                </span>
+              </div>
+
+              <!-- Main CTA Action Buttons -->
+              <div class="space-y-2 pt-1">
+                <button type="button" (click)="saveInvoice()" [disabled]="saving() || cart.length === 0"
+                        class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm rounded-xl shadow-lg shadow-emerald-500/20 transition disabled:opacity-40 flex items-center justify-center gap-2 cursor-pointer">
+                  <span>✓</span>
+                  <span>{{ saving() ? 'Emitiendo Factura...' : 'EMITIR FACTURA FISCAL SAR' }}</span>
+                </button>
+
+                <div class="flex items-center gap-2">
+                  <button type="button" (click)="resetForm()"
+                          class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition cursor-pointer">
+                    Limpiar
+                  </button>
+                  <button type="button" (click)="openCommentsModal()"
+                          class="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition cursor-pointer" title="Observaciones / Garantía">
+                    ⚙️
+                  </button>
                 </div>
               </div>
             </div>
 
           </div>
+
         </div>
       }
 
@@ -486,12 +396,12 @@ interface CartLineItem {
           <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
             <div class="flex items-center gap-2 flex-1 min-w-[240px]">
               <input type="text" [(ngModel)]="searchFilter" placeholder="Buscar por N° Factura, Cliente o RTN..."
-                     class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-blue-500" />
+                     class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:outline-blue-500" />
             </div>
 
             <div class="flex items-center gap-2">
               <select [(ngModel)]="statusFilter"
-                      class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-blue-500">
+                      class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-blue-500 cursor-pointer">
                 <option value="ALL">Todos los Estados</option>
                 <option value="EMITIDA">Solo Emitidas</option>
                 <option value="ANULADA">Solo Anuladas</option>
@@ -642,7 +552,7 @@ interface CartLineItem {
                   <div class="flex items-center gap-3">
                     <span class="font-black text-slate-900 text-sm">L. {{ p.sellPrice.toFixed(2) }}</span>
                     <button type="button" (click)="addCatalogItemToCart(p)"
-                            class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-lg shadow-xs transition cursor-pointer">
+                            class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-xs transition cursor-pointer">
                       + Agregar
                     </button>
                   </div>
@@ -654,6 +564,39 @@ interface CartLineItem {
 
             <div class="flex justify-end pt-2 border-t border-slate-100">
               <button (click)="closeCatalogModal()" class="px-4 py-1.5 bg-slate-100 text-slate-700 font-bold text-xs rounded-xl cursor-pointer">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- ========================================================================= -->
+      <!-- MODAL 3: OBSERVACIONES Y OPCIONES AVANZADAS -->
+      <!-- ========================================================================= -->
+      @if (showCommentsModal()) {
+        <div class="fixed inset-0 bg-slate-950/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+          <div class="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+              <h3 class="font-bold text-slate-900 text-sm">Opciones Adicionales</h3>
+              <button (click)="closeCommentsModal()" class="text-slate-400 hover:text-slate-700 font-bold cursor-pointer">✕</button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Observaciones / Comentarios de Factura</label>
+                <textarea [(ngModel)]="comments" rows="3" placeholder="Instrucciones especiales, orden de despacho..."
+                          class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-blue-500"></textarea>
+              </div>
+
+              <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-800">
+                  <input type="checkbox" [(ngModel)]="generarGarantiaAuto" class="w-4 h-4 text-blue-600 rounded cursor-pointer" />
+                  <span>Generar Boleta de Garantía si incluye series</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="flex justify-end pt-2 border-t border-slate-100">
+              <button (click)="closeCommentsModal()" class="px-4 py-1.5 bg-blue-600 text-white font-bold text-xs rounded-xl cursor-pointer">Listo</button>
             </div>
           </div>
         </div>
@@ -696,9 +639,7 @@ export class FacturacionComponent implements OnInit {
   // Options
   generarGarantiaAuto = true;
   recalcular = false;
-
-  // Active SAP ERP Tab
-  erpTab: 'CONTENIDO' | 'SAR' | 'LOGISTICA' | 'FINANZAS' | 'ANEXOS' = 'CONTENIDO';
+  showClientDetails = signal(false);
 
   // Cart Line Items
   cart: CartLineItem[] = [];
@@ -710,6 +651,8 @@ export class FacturacionComponent implements OnInit {
 
   showCatalogModal = signal(false);
   catalogSearchQuery = '';
+
+  showCommentsModal = signal(false);
 
   // History Filters
   searchFilter = '';
@@ -778,7 +721,9 @@ export class FacturacionComponent implements OnInit {
       list = list.filter(f => 
         f.invoiceNumber.toLowerCase().includes(q) ||
         (f.clientName && f.clientName.toLowerCase().includes(q)) ||
-        (f.clientRtn && f.clientRtn.toLowerCase().includes(q))
+        (f.customClientName && f.customClientName.toLowerCase().includes(q)) ||
+        (f.clientRtn && f.clientRtn.toLowerCase().includes(q)) ||
+        (f.customClientRtn && f.customClientRtn.toLowerCase().includes(q))
       );
     }
     return list;
@@ -824,6 +769,14 @@ export class FacturacionComponent implements OnInit {
 
   closeCatalogModal(): void {
     this.showCatalogModal.set(false);
+  }
+
+  openCommentsModal(): void {
+    this.showCommentsModal.set(true);
+  }
+
+  closeCommentsModal(): void {
+    this.showCommentsModal.set(false);
   }
 
   addCatalogItemToCart(p: Producto): void {
@@ -880,12 +833,6 @@ export class FacturacionComponent implements OnInit {
 
   removeItem(idx: number): void {
     this.cart.splice(idx, 1);
-  }
-
-  onDocumentTypeChange(): void {
-    if (this.documentType !== 'RECIBO_HONORARIOS') {
-      this.recalcular = false;
-    }
   }
 
   onPaymentTermChange(): void {
@@ -970,7 +917,7 @@ export class FacturacionComponent implements OnInit {
     if (this.isExonerated) {
       if (!this.ordenCompraExenta.trim() && !this.constanciaExoneracion.trim() && !this.documentoSar.trim()) {
         alert('Para clientes exonerados, el SAR exige al menos uno de los números: Orden de Compra Exenta, Constancia de Exoneración o Registro SAG.');
-        this.erpTab = 'SAR';
+        this.showClientDetails.set(true);
         return;
       }
     }
