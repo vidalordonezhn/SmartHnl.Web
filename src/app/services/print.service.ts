@@ -349,6 +349,95 @@ export class PrintService {
     this.openPrintWindow(html);
   }
 
+  // 4.5. Comprobante de Compra a Proveedor
+  printCompra(compra: Compra, companySettings?: any): void {
+    const companyName = companySettings?.commercialName || companySettings?.name || "SMART HNL POS";
+    const rtnStr = companySettings?.rtn || "05019654135885";
+    const totalLetras = this.numberToLetters.convertir(compra.totalGeneral || 0);
+
+    const itemsHtml = (compra.details || []).map(d => `
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 8px; text-align: center;">${d.quantity}</td>
+        <td style="padding: 8px; font-weight: bold;">${d.productName || 'Producto'}</td>
+        <td style="padding: 8px; text-align: right;">L. ${(d.costUnit || 0).toFixed(2)}</td>
+        <td style="padding: 8px; text-align: right; font-weight: bold;">L. ${(d.quantity * d.costUnit).toFixed(2)}</td>
+      </tr>
+    `).join('');
+
+    const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Factura de Compra - ${compra.purchaseNumber}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 11px; color: #0f172a; margin: 0; padding: 25px; display: flex; flex-direction: column; align-items: center; }
+    .container { max-width: 800px; width: 100%; background: white; border: 1px solid #cbd5e1; border-radius: 8px; padding: 25px; box-sizing: border-box; }
+    .header { display: flex; justify-content: space-between; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 18px; }
+    .company-info h1 { margin: 0; font-size: 16px; font-weight: 900; color: #0f172a; }
+    .doc-title { text-align: right; }
+    .doc-title h2 { margin: 0; font-size: 14px; font-weight: 800; color: #0f172a; }
+    .box { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; margin-bottom: 14px; }
+    table.data { width: 100%; border-collapse: collapse; margin: 15px 0; }
+    table.data th { background: #334155; color: white; padding: 8px; text-align: left; font-size: 10px; }
+    table.data td { padding: 8px; border-bottom: 1px solid #e2e8f0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="company-info">
+        <h1>${companyName}</h1>
+        <div>RTN: <strong>${rtnStr}</strong></div>
+      </div>
+      <div class="doc-title">
+        <h2>COMPRA A PROVEEDOR</h2>
+        <div style="font-size: 12px; font-weight: bold; color: #2563eb; margin-top: 2px;">N° ${compra.purchaseNumber}</div>
+        <div style="font-size: 10px; color: #64748b;">Fecha: ${compra.date}</div>
+      </div>
+    </div>
+
+    <div class="box">
+      <table style="width: 100%; font-size: 11px;">
+        <tr>
+          <td style="width: 50%;"><strong>PROVEEDOR:</strong> ${compra.providerName || 'Proveedor General'}</td>
+          <td style="width: 50%;"><strong>CONDICIÓN:</strong> ${compra.paymentType}</td>
+        </tr>
+        <tr>
+          <td><strong>RTN PROVEEDOR:</strong> ${compra.providerRtn || '00000000000000'}</td>
+          <td><strong>OBSERVACIONES:</strong> ${compra.comments || 'N/A'}</td>
+        </tr>
+      </table>
+    </div>
+
+    <table class="data">
+      <thead>
+        <tr>
+          <th style="width: 10%; text-align: center;">Cant.</th>
+          <th style="width: 50%;">Descripción</th>
+          <th style="width: 20%; text-align: right;">Costo Unit.</th>
+          <th style="width: 20%; text-align: right;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${itemsHtml}
+      </tbody>
+      <tfoot>
+        <tr style="background: #f8fafc; font-weight: bold;">
+          <td colspan="3" style="text-align: right; padding: 10px;">TOTAL GENERAL:</td>
+          <td style="text-align: right; padding: 10px; font-size: 13px; color: #0f172a;">L. ${(compra.totalGeneral || 0).toFixed(2)}</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="box" style="font-size: 10.5px;">
+      <strong>SON:</strong> ${totalLetras}
+    </div>
+  </div>
+</body>
+</html>`;
+    this.openPrintWindow(html);
+  }
+
   // 5. Formato Boleta de Compra SAR
   printBoletaCompra(boleta: BoletaCompra): void {
     const totalLetras = this.numberToLetters.convertir(boleta.totalGeneral);
