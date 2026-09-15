@@ -14,6 +14,8 @@ import { ClientesComponent } from './clientes/clientes.component';
 import { ProveedoresComponent } from './proveedores/proveedores.component';
 import { CajaChicaComponent } from './caja-chica/caja-chica.component';
 import { ReportesComponent } from './reportes/reportes.component';
+import { CuentasCobrarComponent } from './cuentas-cobrar/cuentas-cobrar.component';
+import { CuentasPagarComponent } from './cuentas-pagar/cuentas-pagar.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -25,14 +27,16 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
       { path: 'facturacion', component: FacturacionComponent },
+      { path: 'cuentas-cobrar', component: CuentasCobrarComponent },
       { path: 'cotizaciones', component: CotizacionesComponent },
       { path: 'notas-credito', component: NotasCreditoComponent },
       { path: 'compras', component: ComprasComponent },
+      { path: 'cuentas-pagar', component: CuentasPagarComponent },
       { path: 'boletas-compra', component: BoletasCompraComponent },
+      { path: 'proveedores', component: ProveedoresComponent },
       { path: 'costeo-obras', component: CosteoObrasComponent },
       { path: 'inventario', component: InventarioComponent },
       { path: 'clientes', component: ClientesComponent },
-      { path: 'proveedores', component: ProveedoresComponent },
       { path: 'caja-chica', component: CajaChicaComponent },
       { path: 'reportes', component: ReportesComponent }
     ]

@@ -37,6 +37,10 @@ import { ApiFacturacionService, EstablishmentFilter } from '../services/api-fact
                class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition">
               <span>🧾 Facturación SAR</span>
             </a>
+            <a routerLink="/cuentas-cobrar" routerLinkActive="bg-blue-600 text-white"
+               class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition">
+              <span>💰 Cuentas por Cobrar</span>
+            </a>
             <a routerLink="/cotizaciones" routerLinkActive="bg-blue-600 text-white"
                class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition">
               <span>📝 Cotizaciones</span>
@@ -50,6 +54,10 @@ import { ApiFacturacionService, EstablishmentFilter } from '../services/api-fact
             <a routerLink="/compras" routerLinkActive="bg-blue-600 text-white"
                class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition">
               <span>🛒 Compras Proveedor</span>
+            </a>
+            <a routerLink="/cuentas-pagar" routerLinkActive="bg-blue-600 text-white"
+               class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition">
+              <span>💳 Cuentas por Pagar</span>
             </a>
             <a routerLink="/boletas-compra" routerLinkActive="bg-blue-600 text-white"
                class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition">

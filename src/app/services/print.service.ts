@@ -586,5 +586,212 @@ export class PrintService {
 </html>`;
     this.openPrintWindow(html);
   }
+
+  // 8. Recibo de Caja / Comprobante de Abono de Cliente (CXC)
+  printReciboAbonoCliente(data: {
+    receiptNumber?: string;
+    clientName: string;
+    clientRtn?: string;
+    invoiceNumber: string;
+    amount: number;
+    previousBalance: number;
+    newBalance: number;
+    paymentMethod: string;
+    reference?: string;
+    notes?: string;
+    date?: string;
+  }, companySettings?: any): void {
+    const companyName = companySettings?.commercialName || companySettings?.name || "SMART HNL POS";
+    const rtnStr = companySettings?.rtn || "05019654135885";
+    const addressStr = companySettings?.address || "Tegucigalpa, Honduras";
+    const phoneStr = companySettings?.phone || "0000-0000";
+    const totalLetras = this.numberToLetters.convertir(data.amount);
+    const dateStr = data.date || new Date().toLocaleString('es-HN');
+    const recNum = data.receiptNumber || `REC-${Date.now().toString().slice(-6)}`;
+
+    const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Recibo de Cobranza - ${recNum}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 11px; color: #0f172a; margin: 0; padding: 25px; display: flex; flex-direction: column; align-items: center; }
+    .container { max-width: 800px; width: 100%; background: white; border: 1px solid #cbd5e1; border-radius: 8px; padding: 25px; box-sizing: border-box; }
+    .header { display: flex; justify-content: space-between; border-bottom: 2px solid #2563eb; padding-bottom: 12px; margin-bottom: 18px; }
+    .company-info h1 { margin: 0; font-size: 16px; font-weight: 900; color: #1e3a8a; }
+    .doc-title { text-align: right; }
+    .doc-title h2 { margin: 0; font-size: 14px; font-weight: 800; color: #2563eb; }
+    .box { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; margin-bottom: 14px; }
+    table.data { width: 100%; border-collapse: collapse; margin: 15px 0; }
+    table.data th { background: #1e293b; color: white; padding: 8px; text-align: left; font-size: 10px; }
+    table.data td { padding: 8px; border-bottom: 1px solid #e2e8f0; }
+    .signatures { display: flex; justify-content: space-between; margin-top: 50px; padding-top: 15px; }
+    .sig-line { width: 40%; text-align: center; border-top: 1px solid #334155; padding-top: 5px; font-weight: bold; font-size: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="company-info">
+        <h1>${companyName}</h1>
+        <div>RTN: <strong>${rtnStr}</strong> | Tel: ${phoneStr}</div>
+        <div>${addressStr}</div>
+      </div>
+      <div class="doc-title">
+        <h2>RECIBO DE CAJA / ABONO</h2>
+        <div style="font-size: 12px; font-weight: bold; color: #0f172a; margin-top: 2px;">N° ${recNum}</div>
+        <div style="font-size: 10px; color: #64748b;">Fecha: ${dateStr}</div>
+      </div>
+    </div>
+
+    <div class="box">
+      <table style="width: 100%; font-size: 11px;">
+        <tr>
+          <td style="width: 50%;"><strong>RECIBIDO DE:</strong> ${data.clientName}</td>
+          <td style="width: 50%;"><strong>FACTURA APLICADA:</strong> ${data.invoiceNumber}</td>
+        </tr>
+        <tr>
+          <td><strong>RTN / ID:</strong> ${data.clientRtn || '00000000000000'}</td>
+          <td><strong>FORMA DE PAGO:</strong> ${data.paymentMethod} ${data.reference ? ' - Ref: ' + data.reference : ''}</td>
+        </tr>
+      </table>
+    </div>
+
+    <table class="data">
+      <thead>
+        <tr>
+          <th>Concepto / Detalle</th>
+          <th style="text-align: right;">Saldo Anterior</th>
+          <th style="text-align: right;">Monto Abonado</th>
+          <th style="text-align: right;">Saldo Restante</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Abono a Factura Crédito N° ${data.invoiceNumber}<br><span style="font-size: 10px; color: #64748b;">${data.notes || 'Pago parcial / liquidación de cuenta por cobrar'}</span></td>
+          <td style="text-align: right; color: #64748b;">L. ${data.previousBalance.toFixed(2)}</td>
+          <td style="text-align: right; font-weight: 900; color: #16a34a; font-size: 12px;">L. ${data.amount.toFixed(2)}</td>
+          <td style="text-align: right; font-weight: 900; color: ${data.newBalance === 0 ? '#16a34a' : '#b91c1c'};">L. ${data.newBalance.toFixed(2)}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="box" style="font-size: 10.5px;">
+      <strong>SON:</strong> ${totalLetras}
+    </div>
+
+    <div class="signatures">
+      <div class="sig-line">Entregué Conforme (Cliente)</div>
+      <div class="sig-line">Recibí Conforme (Caja / Cobranza)</div>
+    </div>
+  </div>
+</body>
+</html>`;
+    this.openPrintWindow(html);
+  }
+
+  // 9. Comprobante de Egreso / Voucher de Pago a Proveedor (CXP)
+  printComprobantePagoProveedor(data: {
+    voucherNumber?: string;
+    providerName: string;
+    providerRtn?: string;
+    purchaseNumber: string;
+    amount: number;
+    previousBalance: number;
+    newBalance: number;
+    paymentMethod: string;
+    reference?: string;
+    notes?: string;
+    date?: string;
+  }, companySettings?: any): void {
+    const companyName = companySettings?.commercialName || companySettings?.name || "SMART HNL POS";
+    const rtnStr = companySettings?.rtn || "05019654135885";
+    const addressStr = companySettings?.address || "Tegucigalpa, Honduras";
+    const phoneStr = companySettings?.phone || "0000-0000";
+    const totalLetras = this.numberToLetters.convertir(data.amount);
+    const dateStr = data.date || new Date().toLocaleString('es-HN');
+    const vNum = data.voucherNumber || `EGR-${Date.now().toString().slice(-6)}`;
+
+    const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Comprobante de Egreso - ${vNum}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 11px; color: #0f172a; margin: 0; padding: 25px; display: flex; flex-direction: column; align-items: center; }
+    .container { max-width: 800px; width: 100%; background: white; border: 1px solid #cbd5e1; border-radius: 8px; padding: 25px; box-sizing: border-box; }
+    .header { display: flex; justify-content: space-between; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 18px; }
+    .company-info h1 { margin: 0; font-size: 16px; font-weight: 900; color: #0f172a; }
+    .doc-title { text-align: right; }
+    .doc-title h2 { margin: 0; font-size: 14px; font-weight: 800; color: #b91c1c; }
+    .box { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; margin-bottom: 14px; }
+    table.data { width: 100%; border-collapse: collapse; margin: 15px 0; }
+    table.data th { background: #334155; color: white; padding: 8px; text-align: left; font-size: 10px; }
+    table.data td { padding: 8px; border-bottom: 1px solid #e2e8f0; }
+    .signatures { display: flex; justify-content: space-between; margin-top: 50px; padding-top: 15px; }
+    .sig-line { width: 40%; text-align: center; border-top: 1px solid #334155; padding-top: 5px; font-weight: bold; font-size: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="company-info">
+        <h1>${companyName}</h1>
+        <div>RTN: <strong>${rtnStr}</strong> | Tel: ${phoneStr}</div>
+        <div>${addressStr}</div>
+      </div>
+      <div class="doc-title">
+        <h2>COMPROBANTE DE EGRESO / PAGO A PROVEEDOR</h2>
+        <div style="font-size: 12px; font-weight: bold; color: #0f172a; margin-top: 2px;">N° ${vNum}</div>
+        <div style="font-size: 10px; color: #64748b;">Fecha: ${dateStr}</div>
+      </div>
+    </div>
+
+    <div class="box">
+      <table style="width: 100%; font-size: 11px;">
+        <tr>
+          <td style="width: 50%;"><strong>PAGADO A:</strong> ${data.providerName}</td>
+          <td style="width: 50%;"><strong>FACTURA / COMPRA N°:</strong> ${data.purchaseNumber}</td>
+        </tr>
+        <tr>
+          <td><strong>RTN PROVEEDOR:</strong> ${data.providerRtn || '00000000000000'}</td>
+          <td><strong>MÉTODO DE PAGO:</strong> ${data.paymentMethod} ${data.reference ? ' - Ref/Cheque: ' + data.reference : ''}</td>
+        </tr>
+      </table>
+    </div>
+
+    <table class="data">
+      <thead>
+        <tr>
+          <th>Concepto / Detalle de Pago</th>
+          <th style="text-align: right;">Deuda Anterior</th>
+          <th style="text-align: right;">Monto Pagado</th>
+          <th style="text-align: right;">Saldo Pendiente</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Pago de Factura a Proveedor N° ${data.purchaseNumber}<br><span style="font-size: 10px; color: #64748b;">${data.notes || 'Liquidación de pasivo comercial con proveedor'}</span></td>
+          <td style="text-align: right; color: #64748b;">L. ${data.previousBalance.toFixed(2)}</td>
+          <td style="text-align: right; font-weight: 900; color: #b91c1c; font-size: 12px;">L. ${data.amount.toFixed(2)}</td>
+          <td style="text-align: right; font-weight: 900; color: ${data.newBalance === 0 ? '#16a34a' : '#b91c1c'};">L. ${data.newBalance.toFixed(2)}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="box" style="font-size: 10.5px;">
+      <strong>SON:</strong> ${totalLetras}
+    </div>
+
+    <div class="signatures">
+      <div class="sig-line">Aprobado / Gerencia Financiera</div>
+      <div class="sig-line">Recibí Conforme (Proveedor / Beneficiario)</div>
+    </div>
+  </div>
+</body>
+</html>`;
+    this.openPrintWindow(html);
+  }
 }
+
 
