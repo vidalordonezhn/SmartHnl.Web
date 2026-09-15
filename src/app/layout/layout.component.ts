@@ -60,7 +60,11 @@ import { ApiFacturacionService, EstablishmentFilter } from '../services/api-fact
               <span>🚚 Catálogo Proveedores</span>
             </a>
 
-            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 pt-3 pb-1">Operaciones & Finanzas</div>
+            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 pt-3 pb-1">Proyectos & Operaciones</div>
+            <a routerLink="/costeo-obras" routerLinkActive="bg-blue-600 text-white"
+               class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition">
+              <span>🏗️ Costeo de Obras</span>
+            </a>
             <a routerLink="/inventario" routerLinkActive="bg-blue-600 text-white"
                class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition">
               <span>📦 Inventario & Kardex</span>

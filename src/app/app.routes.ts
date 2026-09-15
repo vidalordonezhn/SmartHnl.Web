@@ -8,6 +8,7 @@ import { CotizacionesComponent } from './cotizaciones/cotizaciones.component';
 import { NotasCreditoComponent } from './notas-credito/notas-credito.component';
 import { ComprasComponent } from './compras/compras.component';
 import { BoletasCompraComponent } from './boletas-compra/boletas-compra.component';
+import { CosteoObrasComponent } from './costeo-obras/costeo-obras.component';
 import { InventarioComponent } from './inventario/inventario.component';
 import { ClientesComponent } from './clientes/clientes.component';
 import { ProveedoresComponent } from './proveedores/proveedores.component';
@@ -28,6 +29,7 @@ export const routes: Routes = [
       { path: 'notas-credito', component: NotasCreditoComponent },
       { path: 'compras', component: ComprasComponent },
       { path: 'boletas-compra', component: BoletasCompraComponent },
+      { path: 'costeo-obras', component: CosteoObrasComponent },
       { path: 'inventario', component: InventarioComponent },
       { path: 'clientes', component: ClientesComponent },
       { path: 'proveedores', component: ProveedoresComponent },
